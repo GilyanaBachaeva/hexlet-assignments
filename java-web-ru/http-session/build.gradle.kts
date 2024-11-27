@@ -28,6 +28,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("com.konghq:unirest-java:3.13.0")
     testImplementation("org.assertj:assertj-core:3.24.2")
+    implementation ("com.google.code.gson:gson:2.8.9")
 }
 
 tasks.test {
