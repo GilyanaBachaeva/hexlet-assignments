@@ -31,41 +31,33 @@ public final class App {
         });
 
         // BEGIN
-        app.get("/articles/build", ctx -> {
-            ctx.render("articles/build.jte", model("article", new BuildArticlePage("", "")));
+        app.get("articles/build", ctx -> {
+            var page = new BuildArticlePage();
+            ctx.render("articles/build.jte", model("page", page));
         });
+
         app.post("/articles", ctx -> {
-            String title = ctx.formParam("title");
-            String content = ctx.formParam("content");
+            try {
+                var title = ctx.formParamAsClass("title", String.class)
+                        .check(value -> value.length() >= 2, "Название не должно быть короче двух символов")
+                        .check(value -> !ArticleRepository.existsByTitle(value), "Статья с таким названием уже существует")
+                        .get();
 
-            // Валидация данных
-            if (title == null || title.length() < 2) {
-                ctx.status(422);
-                ctx.render("articles/build.jte", model("article", new BuildArticlePage(title, content), "error", "Название не должно быть короче двух символов"));
-                return;
+                var content = ctx.formParamAsClass("content", String.class)
+                        .check(value -> value.length() >= 10, "Статья должна быть не короче 10 символов")
+                        .get();
+
+                var article = new Article(title, content);
+                ArticleRepository.save(article);
+                ctx.redirect("/articles");
+
+            } catch (ValidationException e) {
+                var title = ctx.formParam("title");
+                var content = ctx.formParam("content");
+                var page = new BuildArticlePage(title, content, e.getErrors());
+                ctx.render("articles/build.jte", model("page", page)).status(422);
             }
-
-            if (content == null || content.length() < 10) {
-                ctx.status(422);
-                ctx.render("articles/build.jte", model("article", new BuildArticlePage(title, content), "error", "Содержимое статьи должно быть не короче 10 символов"));
-                return;
-            }
-
-            // Проверка на уникальность названия статьи
-            if (ArticleRepository.findByTitle(title).isPresent()) {
-                ctx.status(422);
-                ctx.render("articles/build.jte", model("article", new BuildArticlePage(title, content), "error", "Статья с таким названием уже существует"));
-                return;
-            }
-
-            // Создание статьи
-            Article newArticle = new Article(title, content);
-            ArticleRepository.save(newArticle);
-
-            // Редирект на страницу со списком статей
-            ctx.redirect("/articles");
         });
-
         // END
 
         return app;
