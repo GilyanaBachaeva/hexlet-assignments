@@ -1,0 +1,21 @@
+---
+# BEGIN
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n" # Настройка формата вывода логов
+  level:
+    root: INFO # Уровень логирования
+  color:
+    enabled: true # Включение цветного вывода логов
+
+server:
+  port: 7070 # Изменение порта на 7070
+
+# END
+
+users:
+  admins:
+    - gjoinsey1@blogger.com
+    - scrosi4@cam.ac.uk
+    - brundle@cam.ac.uk
+
