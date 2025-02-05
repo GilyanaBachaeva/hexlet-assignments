@@ -15,22 +15,22 @@ import exercise.Data;
 
 // BEGIN
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api")
 public class PostsController {
-    // Получение списка всех постов для пользователя с указанным id
-    @GetMapping("/{id}/posts")
-    public List<Post> getPostsByUserId(@PathVariable int id) {
-        List<Post> allPosts = Data.getPosts();
-        return allPosts.stream()
-                .filter(post -> post.getUserId() == id)
-                .toList();
-    }
-    // Создание нового поста для пользователя с указанным id
-    @PostMapping("/{id}/posts")
+    private List<Post> posts = Data.getPosts();
+
     @ResponseStatus(HttpStatus.CREATED)
-    public Post createPost(@PathVariable int id, @RequestBody Post newPost) {
-        newPost.setUserId(id); // Устанавливаем userId из маршрута
-        return newPost;
+    @PostMapping("/users/{userId}/posts")
+    public Post create(@PathVariable Integer userId, @RequestBody Post post) {
+        post.setUserId(userId);
+        posts.add(post);
+        return post;
+    }
+
+    @GetMapping("/users/{userId}/posts")
+    public List<Post> show(@PathVariable Integer userId) {
+        return posts.stream()
+                .filter(p -> p.getUserId() == userId).toList();
     }
 }
 // END
