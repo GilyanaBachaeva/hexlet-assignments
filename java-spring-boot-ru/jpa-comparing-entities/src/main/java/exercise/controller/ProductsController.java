@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.List;
+import java.util.Objects;
 
 import exercise.model.Product;
 import exercise.repository.ProductRepository;
@@ -32,16 +33,12 @@ public class ProductsController {
     }
 
     // BEGIN
-    // Добавление нового товара
-    @PostMapping
+    @PostMapping(path = "")
     @ResponseStatus(HttpStatus.CREATED)
     public Product create(@RequestBody Product product) {
-        // Проверка на существование товара
-        if (productRepository.findAll().stream().anyMatch(p -> p.getTitle().equals(product.getTitle()) && p.getPrice().equals(product.getPrice()))) {
-            throw new ResourceAlreadyExistsException("Product with title '" + product.getTitle() + "' and price " + product.getPrice() + " already exists.");
+        if (productRepository.findAll().contains(product)) {
+            throw new ResourceAlreadyExistsException("Product " + product.getTitle() + " already exists");
         }
-
-        // Сохранение нового товара
         return productRepository.save(product);
     }
     // END
